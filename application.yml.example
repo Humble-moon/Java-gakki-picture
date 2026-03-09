@@ -1,0 +1,140 @@
+# ================================
+# Gakki Picture Backend 配置文件模板
+# ================================
+# 1. 复制此文件为 application-prod.yml
+# 2. 填写您的实际配置
+# 3. 不要提交包含真实密码的文件到 Git
+# ================================
+
+spring:
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/gakki_picture?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
+    username: YOUR_DATABASE_USERNAME
+    password: YOUR_DATABASE_PASSWORD
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+
+  # Redis 配置
+  redis:
+    host: localhost
+    port: 6379
+    password: YOUR_REDIS_PASSWORD
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # 会话配置
+  session:
+    timeout: 1800
+    store-type: redis
+
+  # 邮件配置（可选）
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: YOUR_EMAIL_USERNAME
+    password: YOUR_EMAIL_PASSWORD
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+# 服务器配置
+server:
+  port: 8123
+  servlet:
+    context-path: /api
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.gakki.gakkipicturebackend.model.entity
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Sa-Token 配置
+sa-token:
+  token-name: satoken
+  timeout: 2592000
+  active-timeout: 86400
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: true
+
+# 图片存储配置
+picture:
+  upload:
+    base-path: ./uploads
+    max-size: 10485760
+    allowed-types: image/jpeg,image/png,image/gif,image/webp
+  watermark:
+    enable: false
+    text: Gakki Picture
+    font-size: 16
+    color: #FFFFFF
+    position: bottom-right
+
+# 分析配置
+analyze:
+  thread-pool:
+    core-size: 4
+    max-size: 8
+    queue-capacity: 100
+
+# 安全配置
+security:
+  cors:
+    enable: true
+    allowed-origins: *
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: *
+  rate-limit:
+    enable: true
+    max-requests: 100
+    time-window: 60
+
+# 日志配置
+logging:
+  level:
+    root: info
+    com.gakki.gakkipicturebackend: debug
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 7
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
