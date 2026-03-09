@@ -1,0 +1,104 @@
+server:
+  port: 8123
+  servlet:
+    context-path: /api
+    # cookie 30天后过期
+    session:
+      cookie:
+        max-age: 2592000
+
+spring:
+  application:
+    name: gakki-picture-backend
+  # 允许更大的文件上传体积
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/gakki_picture
+    username: root
+    password: root
+
+  # ShardingSphere 分库分表配置
+  shardingsphere:
+    datasource:
+      names: gakki_picture
+      gakki_picture:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/gakki_picture
+        username: root
+        password: root
+    rules:
+      sharding:
+        tables:
+          picture: # 需要分表的表名
+            actual-data-nodes: gakki_picture.picture
+            table-strategy:
+              standard:
+                sharding-column: spaceId  # 分片字段
+                sharding-algorithm-name: picture_sharding_algorithm
+        sharding-algorithms:
+          picture_sharding_algorithm:
+            type: CLASS_BASED
+            props:
+              strategy: standard
+              algorithmClassName: com.gakki.gakkipicturebackend.manager.sharding.PictureShardingAlgorithm
+    props:
+      sql-show: true  # 显示SQL日志
+
+  # Redis配置
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    timeout: 5000
+
+  # Session配置
+  session:
+    store-type: redis
+    # Session 30天后过期
+    timeout: 2592000
+
+# Mybatis-Plus配置
+mybatis-plus:
+  configuration:
+    # Mybatis关闭驼峰命名
+    map-underscore-to-camel-case: false
+    # 仅在开发环境开启打印日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # 逻辑删除配置
+  global-config:
+    enable-sql-runner: true
+    db-config:
+      logic-delete-field: isDelete  # 逻辑删除字段
+      logic-delete-value: 1  # 逻辑删除字段值
+      logic-not-delete-value: 0  # 逻辑未删除字段值
+
+# knife4j接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    title: 接口文档
+    version: v4.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - com.gakki.gakkipicturebackend.controller
+
+## 对象存储配置（需要从腾讯云获取）
+#cos:
+#  client:
+#    host: xxx
+#    secretId: xxx
+#    secretKey: xxx
+#    region: xxx
+#    bucket: xxx
+
+# 阿里云AI配置
+#aliYunAi:
+#  apiKey: xxx
